@@ -1,23 +1,39 @@
 import os
+
 import africastalking
-from dotenv import load_dotenv
+from flask import Flask
 
-# Load credentials from .env file
-load_dotenv()
+app = Flask(__name__)
 
-USERNAME = os.getenv("AFRICASTALKING_USERNAME")
-API_KEY = os.getenv("AFRICASTALKING_API_KEY")
+# Initialize Africa's Talking SDK
+username = os.getenv("AFRICASTALKING_USERNAME", "sandbox")
+api_key = os.getenv("AFRICASTALKING_API_KEY")
 
-# Initialize Africa's Talking
-africastalking.initialize(USERNAME, API_KEY)
+africastalking.initialize(username, api_key)
 sms = africastalking.SMS
 
-def send_alert_sms(phone_number, message):
-    """Sends an SMS alert via Africa's Talking API without console fallbacks."""
-    try:
-        response = sms.send(message, [phone_number])
-        print(f"SUCCESS: SMS sent to {phone_number} -> {response}")
-        return True
-    except Exception as error:
-        print(f"ERROR: Could not send SMS to {phone_number}. Details: {error}")
-        return False
+
+def check_and_send_sms():
+  """Your existing KPLC tracking logic goes here."""
+  recipients = ["+2547XXXXXXXX"]  # Replace/retrieve your phone number
+  message = "KPLC Tracker Alert: Power status updated!"
+
+  try:
+    response = sms.send(message, recipients)
+    print("Africa's Talking Response:", response)
+    return f"SMS Sent successfully! Response: {response}"
+  except Exception as e:
+    print("Error sending SMS:", str(e))
+    return f"Failed to send SMS: {str(e)}"
+
+
+@app.route("/")
+def home():
+  # Triggers the check whenever the web service URL is visited
+  result = check_and_send_sms()
+  return f"KPLC Tracker Web Service active. Status: {result}"
+
+
+if __name__ == "__main__":
+  port = int(os.environ.get("PORT", 10000))
+  app.run(host="0.0.0.0", port=port)
