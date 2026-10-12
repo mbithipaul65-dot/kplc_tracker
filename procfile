@@ -1,1 +1,1 @@
-worker: python db_manager.py
+web: gunicorn app:app
