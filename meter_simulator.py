@@ -1,17 +1,52 @@
-def get_meter_details():
-    """Returns the registered KPLC meter details."""
-    return {
-        "meter_number": "37192840192"  # Replace with your actual KPLC meter number
-    }
+import os
+import africastalking
+from meter_simulator import (
+    get_meter_details,
+    calculate_remaining_units,
+    get_daily_consumption_rate,
+    get_dynamic_threshold
+)
 
-def calculate_remaining_units():
-    """Calculates or returns the current remaining power units in kWh."""
-    return 4.2  # Example: 4.2 kWh remaining (replace with DB query when ready)
+# Africa's Talking Configuration
+username = os.getenv("AT_USERNAME", "sandbox")
+api_key = os.getenv("AT_API_KEY", "your_api_key_here")  # Ensure your valid API key is set here
 
-def get_daily_consumption_rate():
-    """Returns average daily consumption in kWh/day."""
-    return 3.5  # Example: 3.5 kWh used per day
+africastalking.initialize(username, api_key)
+sms = africastalking.SMS
 
-def get_dynamic_threshold():
-    """Calculates low-power threshold based on 2 days of reserve power."""
-    return get_daily_consumption_rate() * 2  # Alert threshold = 7.0 kWh
+def check_and_send_sms():
+    """Checks power meter balance in units and sends KPLC alert if below threshold."""
+    
+    meter_info = get_meter_details()
+    meter_number = meter_info["meter_number"]
+    
+    current_units = calculate_remaining_units()
+    threshold_units = get_dynamic_threshold()
+    daily_rate = get_daily_consumption_rate()
+    
+    # Calculate estimated time left in hours: (Remaining Units / Daily Consumption) * 24 Hours
+    estimated_hours_left = (current_units / daily_rate) * 24 if daily_rate > 0 else 0
+    
+    if current_units < threshold_units:
+        recipients = ["+254740395200"]  # Your phone number
+        
+        # Formatted SMS text using 'units'
+        message = (
+            f"KPLC Alert: Meter {meter_number} token balance is low ({current_units:.1f} units remaining). "
+            f"Est time left: {estimated_hours_left:.1f} hours. Top up to avoid blackout."
+        )
+        
+        try:
+            response = sms.send(message, recipients)
+            print("KPLC Low balance alert sent successfully:", response)
+            return f"Alert sent for meter {meter_number}."
+        except Exception as e:
+            print("Error sending SMS:", str(e))
+            return f"Failed to send SMS: {str(e)}"
+    else:
+        print(f"Balance OK for meter {meter_number}. Units: {current_units:.1f} units.")
+        return f"Balance OK for meter {meter_number}."
+
+if __name__ == "__main__":
+    result = check_and_send_sms()
+    print(result)

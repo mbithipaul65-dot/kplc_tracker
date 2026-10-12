@@ -9,13 +9,13 @@ from meter_simulator import (
 
 # Africa's Talking Configuration
 username = os.getenv("AT_USERNAME", "sandbox")
-api_key = os.getenv("AT_API_KEY", "your_api_key_here")  # Replace with your actual API key
+api_key = os.getenv("AT_API_KEY", "your_api_key_here")  # Ensure your valid API key is set here
 
 africastalking.initialize(username, api_key)
 sms = africastalking.SMS
 
 def check_and_send_sms():
-    """Checks power meter balance and dispatches formatted KPLC alert if below threshold."""
+    """Checks power meter balance in units and sends KPLC alert if below threshold."""
     
     meter_info = get_meter_details()
     meter_number = meter_info["meter_number"]
@@ -30,9 +30,9 @@ def check_and_send_sms():
     if current_units < threshold_units:
         recipients = ["+254740395200"]  # Your phone number
         
-        # Formatted SMS text
+        # Formatted SMS text using 'units'
         message = (
-            f"KPLC Alert: Meter {meter_number} token balance is low ({current_units:.1f} kWh remaining). "
+            f"KPLC Alert: Meter {meter_number} token balance is low ({current_units:.1f} units remaining). "
             f"Est time left: {estimated_hours_left:.1f} hours. Top up to avoid blackout."
         )
         
@@ -44,5 +44,9 @@ def check_and_send_sms():
             print("Error sending SMS:", str(e))
             return f"Failed to send SMS: {str(e)}"
     else:
-        print(f"Balance OK for meter {meter_number}. Units: {current_units:.1f} kWh.")
+        print(f"Balance OK for meter {meter_number}. Units: {current_units:.1f} units.")
         return f"Balance OK for meter {meter_number}."
+
+if __name__ == "__main__":
+    result = check_and_send_sms()
+    print(result)
