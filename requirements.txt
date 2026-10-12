@@ -2,3 +2,4 @@ python-dotenv
 requests
 africastalking
 flask
+gunicorn
