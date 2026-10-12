@@ -9,7 +9,7 @@ from meter_simulator import (
 
 # Africa's Talking Configuration
 username = os.getenv("AT_USERNAME", "sandbox")
-api_key = os.getenv("AT_API_KEY", "your_api_key_here")  # Ensure your valid API key is set here
+api_key = os.getenv("AT_API_KEY", "atsk_61335d944296dca8cc48d72912300887f40563b46a74dfa7c2698a5f7a708c6ec32b1992")  # Ensure your valid API key is set here
 
 africastalking.initialize(username, api_key)
 sms = africastalking.SMS
