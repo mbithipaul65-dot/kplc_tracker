@@ -15,7 +15,7 @@ sms = africastalking.SMS
 
 def check_and_send_sms():
   """Your existing KPLC tracking logic goes here."""
-  recipients = ["+2547XXXXXXXX"]  # Replace/retrieve your phone number
+  recipients = ["+254740395206"]  # Replace/retrieve your phone number
   message = "KPLC Tracker Alert: Power status updated!"
 
   try:
