@@ -28,7 +28,7 @@ def check_and_send_sms():
     estimated_hours_left = (current_units / daily_rate) * 24 if daily_rate > 0 else 0
     
     if current_units < threshold_units:
-        recipients = ["+254740395200"]  # Your phone number
+        recipients = ["+254740395206"]  # Your phone number
         
         # Formatted SMS text using 'units'
         message = (
