@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from send_sms import send_meter_sms  # Imports your actual SMS function
+from send_sms import check_and_send_sms
 
 app = Flask(__name__)
 
@@ -10,8 +10,7 @@ def home():
 @app.route('/trigger-sms', methods=['GET', 'POST'])
 def trigger_sms():
     try:
-        # Calls your actual SMS dispatch function
-        send_meter_sms()
+        check_and_send_sms()
         return jsonify({"status": "OK"}), 200
     except Exception as e:
         return jsonify({"status": "error"}), 500
