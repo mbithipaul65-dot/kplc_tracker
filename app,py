@@ -1,0 +1,15 @@
+from flask import Flask, jsonify
+from meter_simulator import meter
+
+app = Flask(__name__)
+
+@app.route('/trigger-sms', methods=['GET'])
+def trigger_sms():
+    # Run consumption simulation cycle
+    simulation_status = meter.simulate_consumption()
+    
+    # Return response for Cron-Job.org
+    return jsonify({
+        "status": "success",
+        "result": simulation_status
+    }), 200
