@@ -9,44 +9,41 @@ from meter_simulator import (
 
 # Africa's Talking Configuration
 username = os.getenv("AT_USERNAME", "sandbox")
-api_key = os.getenv("AT_API_KEY", "atsk_61335d944296dca8cc48d72912300887f40563b46a74dfa7c2698a5f7a708c6ec32b1992")  # Ensure your valid API key is set here
+api_key = os.getenv("AT_API_KEY", "your_api_key_here")
 
 africastalking.initialize(username, api_key)
 sms = africastalking.SMS
 
 def check_and_send_sms():
-    """Checks power meter balance in units and sends KPLC alert if below threshold."""
-    
+    """Checks power meter balance in units and sends SMS alert if low."""
     meter_info = get_meter_details()
     meter_number = meter_info["meter_number"]
+    phone_number = meter_info.get("phone_number", "+254712345678")
     
     current_units = calculate_remaining_units()
     threshold_units = get_dynamic_threshold()
     daily_rate = get_daily_consumption_rate()
     
-    # Calculate estimated time left in hours: (Remaining Units / Daily Consumption) * 24 Hours
-    estimated_hours_left = (current_units / daily_rate) * 24 if daily_rate > 0 else 0
-    
-    if current_units < threshold_units:
-        recipients = ["+254740395206"]  # Your phone number
-        
-        # Formatted SMS text using 'units'
+    # Calculate estimated time remaining in hours
+    hours_left = (current_units / daily_rate) * 24 if daily_rate > 0 else 0
+
+    if current_units <= threshold_units:
+        # Original exact message format
         message = (
-            f"KPLC Alert: Meter {meter_number} token balance is low ({current_units:.1f} units remaining). "
-            f"Est time left: {estimated_hours_left:.1f} hours. Top up to avoid blackout."
+            f"KPLC Alert: Meter {meter_number} token balance is low "
+            f"({current_units:.1f} units remaining). "
+            f"Est time left: {hours_left:.1f} hours. "
+            f"Top up to avoid blackout."
         )
-        
+
         try:
-            response = sms.send(message, recipients)
-            print("KPLC Low balance alert sent successfully:", response)
-            return f"Alert sent for meter {meter_number}."
+            response = sms.send(message, [phone_number])
+            print(f"KPLC Low balance alert sent successfully: {response}")
+            print(f"Alert sent for meter {meter_number}.")
         except Exception as e:
-            print("Error sending SMS:", str(e))
-            return f"Failed to send SMS: {str(e)}"
+            print(f"Error sending SMS: {e}")
     else:
-        print(f"Balance OK for meter {meter_number}. Units: {current_units:.1f} units.")
-        return f"Balance OK for meter {meter_number}."
+        print(f"Meter balance normal ({current_units:.1f} units). No alert required.")
 
 if __name__ == "__main__":
-    result = check_and_send_sms()
-    print(result)
+    check_and_send_sms()
