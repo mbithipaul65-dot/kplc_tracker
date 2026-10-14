@@ -3,7 +3,8 @@ from db_manager import get_latest_meter_data
 def get_meter_details():
     """Returns the registered KPLC meter details."""
     return {
-        "meter_number": "37192840192"  # Update with your target meter number if needed
+        "meter_number": "37192840192",
+        "phone_number": "+254740395206"  # <--- Add your phone number here
     }
 
 def calculate_remaining_units():
